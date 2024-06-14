@@ -70,6 +70,7 @@ document.addEventListener("DOMContentLoaded", function() {
         './static/images/cmp/tnt_normal/tnt2048_normal_3.png', './static/images/cmp/tnt_2048/tnt2048_3.png',
         './static/images/cmp/tnt_normal/tnt2048_normal_4.png', './static/images/cmp/tnt_2048/tnt2048_4.png'
     ];
+    
 
     images.forEach(src => preloadImage(src));
 });

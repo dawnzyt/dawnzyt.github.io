@@ -47,46 +47,63 @@ cmpContainers.forEach(container => {
 //     }
 // }
 
-// 2. 同步切换图片
-// loadImg 函数接受一个图像 URL，并返回一个 Promise，这个 Promise 会在图像加载完成时解析。
-// 使用 Promise.all 来等待两个图像都加载完成。
-// 当两个图像都成功加载后，才将它们的 src 属性设置为加载成功的图像 URL，从而确保两个图像同步显示。
-function changeImages(event, cmpId, imgTopSrc, imgBottomSrc) {
+
+// 预加载所有图片
+document.addEventListener("DOMContentLoaded", function() {
+    const images = [
+        './static/images/cmp/monosdf/scannetpp_1.png', './static/images/cmp/ours/scannetpp_1.png',
+        './static/images/cmp/monosdf/scannetpp_2.png', './static/images/cmp/ours/scannetpp_2.png',
+        './static/images/cmp/monosdf/scannetpp_3.png', './static/images/cmp/ours/scannetpp_3.png',
+        './static/images/cmp/monosdf/scannetpp_4.png', './static/images/cmp/ours/scannetpp_4.png',
+        './static/images/cmp/monosdf/scannetpp_5.png', './static/images/cmp/ours/scannetpp_5.png',
+        './static/images/cmp/monosdf/scannetpp_6.png', './static/images/cmp/ours/scannetpp_6.png',
+        './static/images/cmp/monosdf/scannet_1.png', './static/images/cmp/ours/scannet_1.png',
+        './static/images/cmp/monosdf/scannet_2.png', './static/images/cmp/ours/scannet_2.png',
+        './static/images/cmp/monosdf/scannet_3.png', './static/images/cmp/ours/scannet_3.png',
+        './static/images/cmp/monosdf/scannet_4.png', './static/images/cmp/ours/scannet_4.png',
+        './static/images/cmp/monosdf/tnt_1.png', './static/images/cmp/ours/tnt_1.png',
+        './static/images/cmp/monosdf/tnt_2.png', './static/images/cmp/ours/tnt_2.png',
+        './static/images/cmp/monosdf/tnt_3.png', './static/images/cmp/ours/tnt_3.png',
+        './static/images/cmp/monosdf/tnt_4.png', './static/images/cmp/ours/tnt_4.png',
+        './static/images/cmp/tnt_normal/tnt2048_normal_1.png', './static/images/cmp/tnt_2048/tnt2048_1.png',
+        './static/images/cmp/tnt_normal/tnt2048_normal_2.png', './static/images/cmp/tnt_2048/tnt2048_2.png',
+        './static/images/cmp/tnt_normal/tnt2048_normal_3.png', './static/images/cmp/tnt_2048/tnt2048_3.png',
+        './static/images/cmp/tnt_normal/tnt2048_normal_4.png', './static/images/cmp/tnt_2048/tnt2048_4.png'
+    ];
+
+    images.forEach(src => preloadImage(src));
+});
+
+function preloadImage(src) {
+    const img = new Image();
+    img.src = src;
+    img.onload = () => console.log(`${src} loaded successfully`);
+    img.onerror = () => {
+        console.error(`Failed to load ${src}, retrying...`);
+        setTimeout(() => preloadImage(src), 1000); // Retry after 1 second
+    };
+}
+
+function changeImages(event, cmpId, imgSrc1, imgSrc2) {
     const cmpContainer = document.getElementById(cmpId);
     if (!cmpContainer) return;
     
     const topImg = cmpContainer.querySelector('.top img');
     const bottomImg = cmpContainer.querySelector('.bottom img');
     if (!topImg || !bottomImg) return;
+    topImg.src = imgSrc1;
+    bottomImg.src = imgSrc2;
+    // 获取当前按钮的父元素容器
+    const buttonContainer = event.target.parentElement;
+    
+    // 移除该容器内所有按钮的 .cmp-btn-checked 类
+    const buttons = buttonContainer.querySelectorAll('.cmp-button');
+    buttons.forEach(button => {
+        button.classList.remove('cmp-btn-checked');
+    });
 
-    const loadImg = (src) => {
-        // Promise 构造函数实现图像的异步读取，成功调用resolve(src)传递图像 URL，失败调用reject(error)传递错误信息。
-        return new Promise((resolve, reject) => {
-            const img = new Image();
-            img.onload = () => resolve(src);
-            img.onerror = reject;
-            img.src = src; // 设置图像 URL，开始加载图像
-        });
-    };
-    // Promise.all 接受一个 Promise 数组，等待所有 Promise 解析 then得到解析结果，成功各自得到对应resolve中的src，任何一个失败将捕获error信息。
-    Promise.all([loadImg(imgTopSrc), loadImg(imgBottomSrc)])
-        .then(([loadedTopSrc, loadedBottomSrc]) => {
-            topImg.src = loadedTopSrc;
-            bottomImg.src = loadedBottomSrc;
-            // 获取当前按钮的父元素容器
-            const buttonContainer = event.target.parentElement;
-            
-            // 移除该容器内所有按钮的 .cmp-btn-checked 类
-            const buttons = buttonContainer.querySelectorAll('.cmp-button');
-            buttons.forEach(button => {
-                button.classList.remove('cmp-btn-checked');
-            });
+    // 为当前点击的按钮添加 .cmp-btn-checked 类
+    event.target.classList.add('cmp-btn-checked');
 
-            // 为当前点击的按钮添加 .cmp-btn-checked 类
-            event.target.classList.add('cmp-btn-checked');
-        })
-        .catch(error => {
-            console.error('Image loading error:', error);
-        });
 }
 
